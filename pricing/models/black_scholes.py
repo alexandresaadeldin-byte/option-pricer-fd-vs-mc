@@ -49,6 +49,14 @@ class BlackScholes:
         drift = (self.r - self.q - 0.5 * self.sigma**2) * t
         return self.s0 * np.exp(drift + self.sigma * np.sqrt(t) * z)
 
+    def simulate_paths(self, z, maturity):
+        """Exact paths on an equally spaced grid: z has shape (n_paths, n_steps); returns (n_paths, n_steps + 1)."""
+        z = np.asarray(z, dtype=float)
+        dt = maturity / z.shape[1]
+        increments = (self.r - self.q - 0.5 * self.sigma**2) * dt + self.sigma * np.sqrt(dt) * z
+        log_paths = np.concatenate([np.zeros((z.shape[0], 1)), np.cumsum(increments, axis=1)], axis=1)
+        return self.s0 * np.exp(log_paths)
+
     def d1_d2(self, product):
         return _d1_d2(self.s0, product.strike, product.maturity, self.r, self.sigma, self.q)
 

@@ -7,7 +7,7 @@ name = "pricing"
 version = "0.1.0"
 description = "Cross-validated option pricer: finite differences vs Monte Carlo"
 requires-python = ">=3.11"
-dependencies = ["numpy", "scipy", "pandas", "plotly", "streamlit"]
+dependencies = ["numpy", "scipy", "numba", "pandas", "plotly", "streamlit"]
 
 [project.optional-dependencies]
 dev = ["pytest"]

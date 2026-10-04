@@ -5,7 +5,7 @@ import numpy as np
 
 
 @dataclass(frozen=True)
-class EuropeanOption:
+class _Vanilla:
     strike: float
     maturity: float
     kind: Literal["call", "put"] = "call"
@@ -46,3 +46,13 @@ class EuropeanOption:
             hi = np.clip(k, x_left, x_right)
             integral = self.strike * (hi - x_left) - (np.exp(hi) - np.exp(x_left))
         return integral / (x_right - x_left)
+
+
+@dataclass(frozen=True)
+class EuropeanOption(_Vanilla):
+    """Vanilla call or put, exercisable at maturity only."""
+
+
+@dataclass(frozen=True)
+class AmericanOption(_Vanilla):
+    """Vanilla call or put, exercisable at any time up to maturity."""

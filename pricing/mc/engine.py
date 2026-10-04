@@ -6,7 +6,9 @@ import numpy as np
 
 from pricing.mc import greeks as mc_greeks
 from pricing.mc import variance_reduction as vr
+from pricing.mc.lsm import price_american_mc
 from pricing.mc.rng import make_rng
+from pricing.products.vanilla import AmericanOption, EuropeanOption
 from pricing.results import PricingResult
 
 VR_TECHNIQUES = (
@@ -33,6 +35,8 @@ class MCConfig:
     is_drift: float | None = None
     n_strata: int = 100
     conditioning_time: float = 0.5
+    n_steps: int = 50
+    basis_degree: int = 3
 
     def __post_init__(self):
         if self.n_paths < 2:
@@ -45,6 +49,10 @@ class MCConfig:
             raise ValueError("stratification needs at least 2 paths per stratum")
         if not 0 < self.conditioning_time < 1:
             raise ValueError("conditioning_time must be in (0, 1)")
+        if self.n_steps < 1:
+            raise ValueError("n_steps must be at least 1")
+        if self.basis_degree < 1:
+            raise ValueError("basis_degree must be at least 1")
 
 
 def _draw(model, product, config, rng, extra):
@@ -60,7 +68,7 @@ def _draw(model, product, config, rng, extra):
     return vr.plain_sample(rng, config.n_paths)
 
 
-def price_mc(model, product, config: MCConfig = MCConfig()) -> PricingResult:
+def price_european_mc(model, product, config: MCConfig) -> PricingResult:
     mc_greeks.check_methods(config.delta_method, config.gamma_method)
     start = perf_counter()
     rng = make_rng(config.seed)
@@ -94,3 +102,13 @@ def price_mc(model, product, config: MCConfig = MCConfig()) -> PricingResult:
         "monte_carlo", price, delta, gamma, perf_counter() - start,
         price_se, delta_se, gamma_se, extra,
     )
+
+
+def price_mc(model, product, config: MCConfig = MCConfig()) -> PricingResult:
+    if isinstance(product, AmericanOption):
+        if config.variance_reduction != "none":
+            raise ValueError("only variance_reduction='none' is supported for American options")
+        return price_american_mc(model, product, config)
+    if isinstance(product, EuropeanOption):
+        return price_european_mc(model, product, config)
+    raise TypeError(f"no Monte Carlo pricer for {type(product).__name__}")
