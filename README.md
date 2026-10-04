@@ -135,6 +135,6 @@ print(reference_price(model, put).price)
 
 ## How this was built
 
-I designed and built this project with the help of **Claude** (Anthropic's AI assistant): design discussions, implementation, test design and numerical validation. The method choices, the experiments and their interpretation were done as part of my MSc in Probability and Finance (Sorbonne Université / École Polytechnique).
+I built this project with the help of **Claude** (Anthropic's AI assistant), which contributed to the design discussions, implementation, test design and numerical validation. I defined the scope and the comparisons, and made the method choices. It was developed alongside my MSc in Probability and Finance (Sorbonne Université / École Polytechnique).
 
 — Alexandre Saad El Din-Gâche
