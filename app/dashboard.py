@@ -221,18 +221,21 @@ def pde_tab(studies, american):
     cols = st.columns(3)
     for col, (quantity, label) in zip(cols, [("error", "Price"), ("delta_error", "Delta"), ("gamma_error", "Gamma")]):
         fig = loglog(f"{label} error", "Grid nodes", "Absolute error")
-        for scheme, df in studies.items():
+        for i, (scheme, df) in enumerate(studies.items()):
             slope = fit_slope(df["n_nodes"], df[quantity])
+            style = {"line": {"dash": "dash"}, "marker": {"symbol": "x", "size": 9}} if i > 0 else {}
             fig.add_trace(go.Scatter(x=df["n_nodes"], y=df[quantity], mode="lines+markers",
-                                     name=f"{scheme} (slope {slope:.2f})"))
+                                     name=f"{scheme} (slope {slope:.2f})", **style))
         col.plotly_chart(fig, width="stretch")
     if american:
         fig = loglog("LCP solver cost", "Grid nodes", "CPU time (s)")
         for scheme, df in studies.items():
             fig.add_trace(go.Scatter(x=df["n_nodes"], y=df["elapsed"], mode="lines+markers", name=scheme))
         st.plotly_chart(fig, width="stretch")
-        st.caption("Both solvers give the same solution; Brennan–Schwartz is direct (O(N) per step), PSOR iterates "
-                   "and needs more sweeps as the grid is refined.")
+        st.caption("The error curves of the two LCP solvers overlap exactly (dashed = PSOR): both solve the same "
+                   "discrete problem, so they share the same discretization error. They differ only in cost: "
+                   "Brennan–Schwartz is direct (O(N) per step), PSOR iterates and needs more sweeps as the grid "
+                   "is refined.")
     else:
         st.caption("Space and time are refined together, keeping N_t / N_x fixed. Theory: slope −2 for "
                    "Crank–Nicolson.")
