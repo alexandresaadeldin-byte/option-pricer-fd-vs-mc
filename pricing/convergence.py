@@ -1,4 +1,5 @@
 from dataclasses import replace
+from time import perf_counter
 
 import numpy as np
 import pandas as pd
@@ -17,9 +18,17 @@ def _best_of(pricer, repeats):
     return results[-1], min(r.elapsed for r in results)
 
 
+def _warm_up(pricer, seconds=0.05):
+    """Run untimed until the CPU has left its idle state and caches are hot (otherwise small runs look slow)."""
+    start = perf_counter()
+    while perf_counter() - start < seconds:
+        pricer()
+
+
 def mc_convergence(model, product, config, n_values, repeats=3) -> pd.DataFrame:
     exact = reference_price(model, product)
     rows = []
+    _warm_up(lambda: price_mc(model, product, replace(config, n_paths=int(min(n_values)))))
     for n in n_values:
         res, elapsed = _best_of(lambda: price_mc(model, product, replace(config, n_paths=int(n))), repeats)
         rows.append({
@@ -39,8 +48,13 @@ def pde_convergence(model, product, config, n_space_values, repeats=3) -> pd.Dat
     exact = reference_price(model, product)
     ratio = config.n_time / config.n_space
     rows = []
+
+    def config_for(n):
+        return replace(config, n_space=int(n), n_time=max(1, config.rannacher_steps, round(n * ratio)))
+
+    _warm_up(lambda: price_pde(model, product, config_for(min(n_space_values))))
     for n in n_space_values:
-        cfg = replace(config, n_space=int(n), n_time=max(1, config.rannacher_steps, round(n * ratio)))
+        cfg = config_for(n)
         res, elapsed = _best_of(lambda: price_pde(model, product, cfg), repeats)
         rows.append({
             "n_space": cfg.n_space,

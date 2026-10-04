@@ -1,15 +1,15 @@
 | Technique | Std error at N = 10⁶ | Variance reduction | Time (ms) | Efficiency gain |
 |---|---|---|---|---|
-| none | 0.01473 | ×1.0 | 73 | ×1.0 |
-| antithetic | 0.01042 | ×2.0 | 68 | ×2.1 |
-| control_variate | 0.00562 | ×6.9 | 91 | ×5.5 |
-| importance_sampling | 0.01473 | ×1.0 | 78 | ×0.9 |
-| stratification | 0.00117 | ×159.1 | 110 | ×105.5 |
-| conditioning | 0.00969 | ×2.3 | 173 | ×1.0 |
+| none | 0.01473 | ×1.0 | 72 | ×1.0 |
+| antithetic | 0.01042 | ×2.0 | 71 | ×2.0 |
+| control_variate | 0.00562 | ×6.9 | 102 | ×4.9 |
+| importance_sampling | 0.01473 | ×1.0 | 82 | ×0.9 |
+| stratification | 0.00117 | ×159.1 | 113 | ×101.5 |
+| conditioning | 0.00969 | ×2.3 | 175 | ×0.9 |
 
 European call closed form: 10.450584
-Brennan–Schwartz: errors 1.3e-03, 4.2e-04, 1.4e-04, 5.0e-05, 1.7e-05; times (ms) 2, 4, 12, 34, 113
-PSOR: errors 1.3e-03, 4.2e-04, 1.4e-04, 5.0e-05, 1.9e-05; times (ms) 5, 15, 71, 416, 2624
+Brennan–Schwartz: errors 1.3e-03, 4.2e-04, 1.4e-04, 5.0e-05, 1.7e-05; times (ms) 2, 4, 11, 30, 94
+PSOR: errors 1.3e-03, 4.2e-04, 1.4e-04, 5.0e-05, 1.9e-05; times (ms) 4, 14, 63, 391, 2651
 
 American put reference (S0=36): 4.486671
 LSM 2 dates: 4.2057 ± 0.0165 (bias -0.2810)

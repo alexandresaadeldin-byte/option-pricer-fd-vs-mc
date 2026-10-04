@@ -12,12 +12,12 @@ Convergence studies measure the empirical order of each method and its accuracy 
 | | Result |
 |---|---|
 | Monte Carlo convergence | CI half-width ∝ N^−0.50 for every technique: variance reduction moves the line down, it does not change the slope |
-| Best variance reduction (ATM call) | **Stratification: variance ÷159**, efficiency ×105 at equal CPU time. Control variate ÷6.9, antithetics ÷2.0 |
+| Best variance reduction (ATM call) | **Stratification: variance ÷159**, efficiency ≈ ×100 at equal CPU time. Control variate ÷6.9, antithetics ÷2.0 |
 | Crank–Nicolson order | Price, delta and gamma errors ∝ N^−2.0 with Rannacher start-up |
 | Rannacher start-up | With N_t = N_x/8, the pure-CN gamma error **grows** with refinement (slope +1.0). Rannacher restores slope −2.0 |
 | MC vs PDE (European, 1D) | For an error of 10⁻³, the PDE is ~100× faster than the best Monte Carlo |
 | American put (K = 40, S₀ = 36) | Reference 4.48667. PDE and an independent BBSR binomial tree agree to 10⁻⁵. The value in Longstaff–Schwartz (2001, Table 1), 4.478, comes from a coarse grid |
-| LCP solvers | PSOR and Brennan–Schwartz give the same solution (10⁻⁶). At 3 200 nodes, Brennan–Schwartz is **23× faster** (0.11 s vs 2.6 s) |
+| LCP solvers | PSOR and Brennan–Schwartz give the same solution (10⁻⁶). At 3 200 nodes, Brennan–Schwartz is **~25× faster** (0.1 s vs 2.6 s) |
 | Longstaff–Schwartz | Downward Bermudan bias: −0.28 with 2 exercise dates, −0.01 with 50 |
 
 ## Figures
