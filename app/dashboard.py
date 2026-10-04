@@ -43,7 +43,7 @@ def run_mc_study(model_kw, option_kw, mc_kw, techniques, n_max):
     model, option = build(model_kw, option_kw)
     n_values = np.unique(np.logspace(3, np.log10(n_max), 8).astype(int))
     base = MCConfig(**mc_kw)
-    return {t: mc_convergence(model, option, replace(base, variance_reduction=t), n_values, repeats=1)
+    return {t: mc_convergence(model, option, replace(base, variance_reduction=t), n_values, repeats=3)
             for t in techniques}
 
 
