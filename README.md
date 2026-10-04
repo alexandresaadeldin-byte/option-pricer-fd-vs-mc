@@ -132,9 +132,3 @@ print(reference_price(model, put).price)
 - R. Rannacher, *Finite element solution of diffusion problems with irregular data*, Numerische Mathematik, 1984.
 - D. Pooley, K. Vetzal, P. Forsyth, *Convergence remedies for non-smooth payoffs in option pricing*, J. Comp. Finance, 2003.
 - M. Broadie, J. Detemple, *American option valuation: new bounds, approximations, and a comparison of existing methods*, RFS, 1996.
-
-## How this was built
-
-I built this project with the help of **Claude** (Anthropic's AI assistant), which contributed to the design discussions, implementation, test design and numerical validation. I defined the scope and the comparisons, and made the method choices. It was developed alongside my MSc in Probability and Finance (Sorbonne Université / École Polytechnique).
-
-— Alexandre Saad El Din-Gâche
