@@ -25,3 +25,13 @@ def test_dashboard_reports_pathwise_gamma_error():
     gamma_box.select("pathwise")
     at.button[0].click().run(timeout=120)
     assert len(at.error) == 1
+
+
+def test_dashboard_solves_an_american_put():
+    at = AppTest.from_file(APP).run(timeout=60)
+    next(sb for sb in at.selectbox if sb.label == "Exercise").select("American")
+    at.run(timeout=60)
+    at.button[0].click().run(timeout=300)
+    assert not at.exception
+    assert not at.error
+    assert len(at.dataframe) >= 1

@@ -29,3 +29,15 @@ def test_pde_convergence_table(model):
     df = pde_convergence(model, option, PDEConfig(n_space=100, n_time=50), [100, 200, 400, 800], repeats=1)
     assert list(df["n_time"]) == [50, 100, 200, 400]
     assert fit_slope(df["n_nodes"], df["error"]) == pytest.approx(-2.0, abs=0.2)
+
+
+def test_american_studies_use_the_reference_price():
+    from pricing import AmericanOption, BlackScholes
+    from pricing.convergence import exercise_dates_study
+    model, option = BlackScholes(s0=36, r=0.06, sigma=0.2), AmericanOption(40, 1.0, "put")
+    pde = pde_convergence(model, option, PDEConfig(n_space=200, n_time=50), [200, 400, 800], repeats=1)
+    assert pde["error"].iloc[-1] < pde["error"].iloc[0]
+    assert fit_slope(pde["n_nodes"], pde["error"]) < -1.0
+    steps = exercise_dates_study(model, option, MCConfig(n_paths=50_000), [4, 16, 64])
+    assert steps["bias"].iloc[0] < 0
+    assert steps["price"].iloc[0] < steps["price"].iloc[-1]
