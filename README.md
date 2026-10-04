@@ -77,13 +77,33 @@ Convergence studies measure the empirical order of each method and its accuracy 
 
 ## Quick start
 
+Requires Python ≥ 3.11.
+
+**1. Install** (once):
+
 ```bash
+git clone https://github.com/alexandresaadeldin-byte/option-pricer-fd-vs-mc.git
+cd option-pricer-fd-vs-mc
 python -m venv .venv
-.venv/Scripts/python -m pip install -e ".[dev]"     # Linux/macOS: .venv/bin/python
-.venv/Scripts/python -m pytest
-.venv/Scripts/python -m streamlit run app/dashboard.py
-.venv/Scripts/python scripts/make_figures.py       # regenerates the figures above
+.venv/Scripts/python -m pip install -e ".[dev]"     # Linux/macOS: replace .venv/Scripts/ by .venv/bin/
 ```
+
+**2. Launch the interactive dashboard:**
+
+```bash
+.venv/Scripts/python -m streamlit run app/dashboard.py
+```
+
+Your browser opens at <http://localhost:8501>. Pick a product (European or American, call or put) and the model, Monte Carlo and finite-difference parameters in the sidebar, then click **SOLVE**. The tabs show prices and Greeks against the reference, convergence studies, accuracy vs CPU time, Greek profiles on the grid and, for American options, the Bermudan bias of Longstaff–Schwartz and the early-exercise boundary. Stop the server with `Ctrl+C`.
+
+**3. Run the tests and regenerate the figures:**
+
+```bash
+.venv/Scripts/python -m pytest                     # 125 tests, ~20 s
+.venv/Scripts/python scripts/make_figures.py       # figures and results table of this README
+```
+
+**Use the library directly:**
 
 ```python
 from pricing import (AmericanOption, BlackScholes, EuropeanOption, MCConfig, PDEConfig,
