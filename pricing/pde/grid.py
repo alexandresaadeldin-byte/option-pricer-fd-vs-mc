@@ -16,7 +16,8 @@ class LogGrid:
         return np.exp(self.x)
 
 
-def build_grid(s0, strike, sigma, maturity, n_space, width) -> LogGrid:
+def build_grid(s0: float, strike: float, sigma: float, maturity: float, n_space: int,
+               width: float) -> LogGrid:
     half_width = width * sigma * sqrt(maturity)
     x0 = log(s0)
     dx_target = 2 * half_width / n_space

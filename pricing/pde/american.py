@@ -1,13 +1,22 @@
+from __future__ import annotations
+
 from time import perf_counter
+from typing import TYPE_CHECKING
 
 import numpy as np
 
+from pricing.models.black_scholes import BlackScholes
 from pricing.pde import scheme
 from pricing.pde.lcp import brennan_schwartz, psor
+from pricing.products.vanilla import AmericanOption
 from pricing.results import PricingResult
 
+if TYPE_CHECKING:
+    from pricing.pde.solver import PDEConfig
 
-def _boundaries(model, option, s_min, s_max):
+
+def _boundaries(model: BlackScholes, option: AmericanOption, s_min: float,
+                s_max: float) -> scheme.Boundaries:
     k, r, q = option.strike, model.r, model.q
 
     def values(tau):
@@ -18,7 +27,7 @@ def _boundaries(model, option, s_min, s_max):
     return values
 
 
-def _exercise_boundary(s, u, obstacle, is_call):
+def _exercise_boundary(s: np.ndarray, u: np.ndarray, obstacle: np.ndarray, is_call: bool) -> float:
     exercised = (obstacle > 0) & (u[1:-1] <= obstacle + 1e-10)
     if not exercised.any():
         return np.nan
@@ -26,7 +35,7 @@ def _exercise_boundary(s, u, obstacle, is_call):
     return float(s_in.min() if is_call else s_in.max())
 
 
-def price_american_pde(model, option, config) -> PricingResult:
+def price_american_pde(model: BlackScholes, option: AmericanOption, config: PDEConfig) -> PricingResult:
     start = perf_counter()
     grid, u0, operator = scheme.setup(model, option, config)
     obstacle = option.payoff(grid.s[1:-1])

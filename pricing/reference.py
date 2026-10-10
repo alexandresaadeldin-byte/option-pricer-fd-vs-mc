@@ -3,14 +3,16 @@
 from dataclasses import replace
 from functools import lru_cache
 
+from pricing.models.black_scholes import BlackScholes
 from pricing.pde.solver import PDEConfig, price_pde
-from pricing.products.vanilla import AmericanOption, EuropeanOption
+from pricing.products.vanilla import AmericanOption, EuropeanOption, VanillaOption
+from pricing.results import PricingResult
 
 AMERICAN_REFERENCE_GRID = PDEConfig(n_space=8000, n_time=4000)
 
 
 @lru_cache(maxsize=128)
-def reference_price(model, product):
+def reference_price(model: BlackScholes, product: VanillaOption) -> PricingResult:
     """Closed form for European options; very fine Brennan–Schwartz PDE (error ~1e-5) for American options."""
     if isinstance(product, EuropeanOption):
         return model.closed_form(product)

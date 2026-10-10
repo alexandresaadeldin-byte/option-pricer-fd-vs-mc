@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 
 @dataclass(frozen=True)
@@ -22,19 +23,19 @@ class _Vanilla:
     def is_call(self) -> bool:
         return self.kind == "call"
 
-    def payoff(self, s):
+    def payoff(self, s: ArrayLike) -> np.ndarray:
         s = np.asarray(s, dtype=float)
         if self.is_call:
             return np.maximum(s - self.strike, 0.0)
         return np.maximum(self.strike - s, 0.0)
 
-    def payoff_derivative(self, s):
+    def payoff_derivative(self, s: ArrayLike) -> np.ndarray:
         s = np.asarray(s, dtype=float)
         if self.is_call:
             return (s > self.strike).astype(float)
         return -(s < self.strike).astype(float)
 
-    def log_cell_average(self, x_left, x_right):
+    def log_cell_average(self, x_left: ArrayLike, x_right: ArrayLike) -> np.ndarray:
         """Exact average of the payoff, in x = ln S, over each cell [x_left, x_right]."""
         x_left = np.asarray(x_left, dtype=float)
         x_right = np.asarray(x_right, dtype=float)
@@ -56,3 +57,6 @@ class EuropeanOption(_Vanilla):
 @dataclass(frozen=True)
 class AmericanOption(_Vanilla):
     """Vanilla call or put, exercisable at any time up to maturity."""
+
+
+VanillaOption = EuropeanOption | AmericanOption

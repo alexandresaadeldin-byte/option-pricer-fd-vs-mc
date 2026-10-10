@@ -25,7 +25,8 @@ def _projected_thomas(sub, main, sup, rhs, obstacle):
     return x
 
 
-def brennan_schwartz(sub, main, sup, rhs, obstacle, exercise_at_high_index):
+def brennan_schwartz(sub: np.ndarray, main: np.ndarray, sup: np.ndarray, rhs: np.ndarray,
+                     obstacle: np.ndarray, exercise_at_high_index: bool) -> np.ndarray:
     """Direct O(n) solver. The projected substitution must start inside the exercise region."""
     if exercise_at_high_index:
         return _projected_thomas(sub, main, sup, rhs, obstacle)

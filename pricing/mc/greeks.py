@@ -1,10 +1,13 @@
 import numpy as np
 
+from pricing.models.black_scholes import BlackScholes
+from pricing.products.vanilla import EuropeanOption
+
 DELTA_METHODS = ("pathwise", "likelihood_ratio")
 GAMMA_METHODS = ("likelihood_ratio", "pathwise_lr", "pathwise")
 
 
-def check_methods(delta_method, gamma_method):
+def check_methods(delta_method: str, gamma_method: str) -> None:
     if delta_method not in DELTA_METHODS:
         raise ValueError(f"delta_method must be one of {DELTA_METHODS}")
     if gamma_method not in GAMMA_METHODS:
@@ -17,7 +20,8 @@ def check_methods(delta_method, gamma_method):
         )
 
 
-def delta_samples(model, product, s_t, z, method):
+def delta_samples(model: BlackScholes, product: EuropeanOption, s_t: np.ndarray, z: np.ndarray,
+                  method: str) -> np.ndarray:
     discount = np.exp(-model.r * product.maturity)
     vol = model.sigma * np.sqrt(product.maturity)
     if method == "pathwise":
@@ -25,7 +29,8 @@ def delta_samples(model, product, s_t, z, method):
     return discount * product.payoff(s_t) * z / (model.s0 * vol)
 
 
-def gamma_samples(model, product, s_t, z, method):
+def gamma_samples(model: BlackScholes, product: EuropeanOption, s_t: np.ndarray, z: np.ndarray,
+                  method: str) -> np.ndarray:
     discount = np.exp(-model.r * product.maturity)
     vol = model.sigma * np.sqrt(product.maturity)
     if method == "likelihood_ratio":

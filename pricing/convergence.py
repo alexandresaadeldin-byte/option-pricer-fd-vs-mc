@@ -1,31 +1,37 @@
+from collections.abc import Callable, Sequence
 from dataclasses import replace
 from time import perf_counter
 
 import numpy as np
 import pandas as pd
+from numpy.typing import ArrayLike
 
-from pricing.mc.engine import price_mc
-from pricing.pde.solver import price_pde
+from pricing.mc.engine import MCConfig, price_mc
+from pricing.models.black_scholes import BlackScholes
+from pricing.pde.solver import PDEConfig, price_pde
+from pricing.products.vanilla import AmericanOption, VanillaOption
 from pricing.reference import reference_price
+from pricing.results import PricingResult
 
 
-def fit_slope(x, y) -> float:
+def fit_slope(x: ArrayLike, y: ArrayLike) -> float:
     return float(np.polyfit(np.log(x), np.log(np.abs(y)), 1)[0])
 
 
-def _best_of(pricer, repeats):
+def _best_of(pricer: Callable[[], PricingResult], repeats: int) -> tuple[PricingResult, float]:
     results = [pricer() for _ in range(repeats)]
     return results[-1], min(r.elapsed for r in results)
 
 
-def _warm_up(pricer, seconds=0.05):
+def _warm_up(pricer: Callable[[], PricingResult], seconds: float = 0.05) -> None:
     """Run untimed until the CPU has left its idle state and caches are hot (otherwise small runs look slow)."""
     start = perf_counter()
     while perf_counter() - start < seconds:
         pricer()
 
 
-def mc_convergence(model, product, config, n_values, repeats=3) -> pd.DataFrame:
+def mc_convergence(model: BlackScholes, product: VanillaOption, config: MCConfig, n_values: Sequence[int],
+                   repeats: int = 3) -> pd.DataFrame:
     exact = reference_price(model, product)
     rows = []
     _warm_up(lambda: price_mc(model, product, replace(config, n_paths=int(min(n_values)))))
@@ -44,7 +50,8 @@ def mc_convergence(model, product, config, n_values, repeats=3) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def pde_convergence(model, product, config, n_space_values, repeats=3) -> pd.DataFrame:
+def pde_convergence(model: BlackScholes, product: VanillaOption, config: PDEConfig,
+                    n_space_values: Sequence[int], repeats: int = 3) -> pd.DataFrame:
     exact = reference_price(model, product)
     ratio = config.n_time / config.n_space
     rows = []
@@ -70,7 +77,8 @@ def pde_convergence(model, product, config, n_space_values, repeats=3) -> pd.Dat
     return pd.DataFrame(rows)
 
 
-def exercise_dates_study(model, product, config, n_steps_values) -> pd.DataFrame:
+def exercise_dates_study(model: BlackScholes, product: AmericanOption, config: MCConfig,
+                         n_steps_values: Sequence[int]) -> pd.DataFrame:
     """Longstaff-Schwartz price as a function of the number of exercise dates (Bermudan bias)."""
     exact = reference_price(model, product)
     rows = []

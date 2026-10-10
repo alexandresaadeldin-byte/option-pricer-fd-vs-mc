@@ -8,7 +8,8 @@ from pricing.mc import greeks as mc_greeks
 from pricing.mc import variance_reduction as vr
 from pricing.mc.lsm import price_american_mc
 from pricing.mc.rng import make_rng
-from pricing.products.vanilla import AmericanOption, EuropeanOption
+from pricing.models.black_scholes import BlackScholes
+from pricing.products.vanilla import AmericanOption, EuropeanOption, VanillaOption
 from pricing.results import PricingResult
 
 VR_TECHNIQUES = (
@@ -55,7 +56,8 @@ class MCConfig:
             raise ValueError("basis_degree must be at least 1")
 
 
-def _draw(model, product, config, rng, extra):
+def _draw(model: BlackScholes, product: EuropeanOption, config: MCConfig, rng: np.random.Generator,
+          extra: dict) -> vr.GaussianSample:
     technique = config.variance_reduction
     if technique == "antithetic":
         return vr.antithetic_sample(rng, config.n_paths)
@@ -68,7 +70,7 @@ def _draw(model, product, config, rng, extra):
     return vr.plain_sample(rng, config.n_paths)
 
 
-def price_european_mc(model, product, config: MCConfig) -> PricingResult:
+def price_european_mc(model: BlackScholes, product: EuropeanOption, config: MCConfig) -> PricingResult:
     mc_greeks.check_methods(config.delta_method, config.gamma_method)
     start = perf_counter()
     rng = make_rng(config.seed)
@@ -104,7 +106,7 @@ def price_european_mc(model, product, config: MCConfig) -> PricingResult:
     )
 
 
-def price_mc(model, product, config: MCConfig = MCConfig()) -> PricingResult:
+def price_mc(model: BlackScholes, product: VanillaOption, config: MCConfig = MCConfig()) -> PricingResult:
     if isinstance(product, AmericanOption):
         if config.variance_reduction != "none":
             raise ValueError("only variance_reduction='none' is supported for American options")

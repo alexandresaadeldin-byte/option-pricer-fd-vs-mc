@@ -1,19 +1,28 @@
 """Longstaff–Schwartz least-squares Monte Carlo for American options."""
 
+from __future__ import annotations
+
 from time import perf_counter
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pricing.mc.rng import make_rng
 from pricing.mc.variance_reduction import mean_and_stderr
+from pricing.models.black_scholes import BlackScholes
+from pricing.products.vanilla import AmericanOption
 from pricing.results import PricingResult
 
+if TYPE_CHECKING:
+    from pricing.mc.engine import MCConfig
 
-def _basis(x, degree):
+
+def _basis(x: np.ndarray, degree: int) -> np.ndarray:
     return np.vander(x, degree + 1, increasing=True)
 
 
-def fit_exercise_policy(paths, option, r, dt, degree):
+def fit_exercise_policy(paths: np.ndarray, option: AmericanOption, r: float, dt: float,
+                        degree: int) -> list[np.ndarray | None]:
     """Backward induction on training paths. Returns one coefficient vector per exercise date 1..n_steps-1."""
     n_steps = paths.shape[1] - 1
     cashflow = option.payoff(paths[:, -1])
@@ -35,7 +44,8 @@ def fit_exercise_policy(paths, option, r, dt, degree):
     return coefficients
 
 
-def apply_exercise_policy(paths, option, coefficients, degree):
+def apply_exercise_policy(paths: np.ndarray, option: AmericanOption,
+                          coefficients: list[np.ndarray | None], degree: int) -> np.ndarray:
     """Forward pass: exercise at the first date where intrinsic value beats the regressed continuation."""
     n_paths, n_dates = paths.shape
     n_steps = n_dates - 1
@@ -54,7 +64,7 @@ def apply_exercise_policy(paths, option, coefficients, degree):
     return stop_step
 
 
-def price_american_mc(model, option, config) -> PricingResult:
+def price_american_mc(model: BlackScholes, option: AmericanOption, config: MCConfig) -> PricingResult:
     start = perf_counter()
     rng = make_rng(config.seed)
     n_steps = config.n_steps

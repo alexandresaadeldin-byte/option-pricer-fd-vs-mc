@@ -5,9 +5,10 @@ from typing import Literal
 import numpy as np
 from scipy.linalg import solve_banded
 
+from pricing.models.black_scholes import BlackScholes
 from pricing.pde import scheme
 from pricing.pde.american import price_american_pde
-from pricing.products.vanilla import AmericanOption, EuropeanOption
+from pricing.products.vanilla import AmericanOption, EuropeanOption, VanillaOption
 from pricing.results import PricingResult
 
 LCP_SOLVERS = ("brennan_schwartz", "psor")
@@ -42,7 +43,8 @@ class PDEConfig:
             raise ValueError("omega must be in (0, 2)")
 
 
-def _european_boundaries(model, option, s_min, s_max):
+def _european_boundaries(model: BlackScholes, option: EuropeanOption, s_min: float,
+                         s_max: float) -> scheme.Boundaries:
     def values(tau):
         k_disc = option.strike * np.exp(-model.r * tau)
         q_disc = np.exp(-model.q * tau)
@@ -53,7 +55,8 @@ def _european_boundaries(model, option, s_min, s_max):
     return values
 
 
-def _solve_tridiagonal(sub, main, sup, rhs, u_old):
+def _solve_tridiagonal(sub: np.ndarray, main: np.ndarray, sup: np.ndarray, rhs: np.ndarray,
+                      u_old: np.ndarray) -> np.ndarray:
     ab = np.zeros((3, main.size))
     ab[0, 1:] = sup
     ab[1, :] = main
@@ -61,7 +64,7 @@ def _solve_tridiagonal(sub, main, sup, rhs, u_old):
     return solve_banded((1, 1), ab, rhs)
 
 
-def price_european_pde(model, option, config) -> PricingResult:
+def price_european_pde(model: BlackScholes, option: EuropeanOption, config: PDEConfig) -> PricingResult:
     start = perf_counter()
     grid, u0, operator = scheme.setup(model, option, config)
     boundaries = _european_boundaries(model, option, grid.s[0], grid.s[-1])
@@ -73,7 +76,7 @@ def price_european_pde(model, option, config) -> PricingResult:
     return PricingResult("finite_differences", price, delta, gamma, perf_counter() - start, extra=extra)
 
 
-def price_pde(model, product, config: PDEConfig = PDEConfig()) -> PricingResult:
+def price_pde(model: BlackScholes, product: VanillaOption, config: PDEConfig = PDEConfig()) -> PricingResult:
     if isinstance(product, AmericanOption):
         return price_american_pde(model, product, config)
     if isinstance(product, EuropeanOption):
