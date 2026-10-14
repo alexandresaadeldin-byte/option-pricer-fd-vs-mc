@@ -143,6 +143,10 @@ print(reference_price(model, put).price)
 3. Barrier options (pinned barriers, Brownian-bridge correction) and digital options
 4. Local volatility and Heston (Euler/Milstein schemes, multilevel Monte Carlo)
 
+## Production
+
+Made by Alexandre SAAD EL DIN-GÂCHE and Claude Code
+
 ## References
 
 - G. Pagès, *Numerical Probability: An Introduction with Applications to Finance*, Springer, 2018.
