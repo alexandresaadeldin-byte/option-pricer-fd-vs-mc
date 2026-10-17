@@ -39,7 +39,10 @@ def variance_reduction():
     base = None
     for technique in VR_TECHNIQUES:
         df = mc_convergence(EURO_MODEL, EURO_CALL, MCConfig(variance_reduction=technique), n_values, repeats=3)
-        ax.loglog(df["n_paths"], df["ci_half_width"], marker="o", ms=3,
+        # At the money the IS drift is 0, so its curve coincides with the crude one: draw it dashed on top.
+        style = {"ls": "--", "marker": "x", "ms": 6, "zorder": 3} if technique == "importance_sampling" else \
+            {"marker": "o", "ms": 3}
+        ax.loglog(df["n_paths"], df["ci_half_width"], **style,
                   label=f"{technique} (slope {fit_slope(df['n_paths'], df['ci_half_width']):.2f})")
         last = df.iloc[-1]
         efficiency = last["stderr"] ** 2 * last["elapsed"]

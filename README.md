@@ -22,7 +22,7 @@ Convergence studies measure the empirical order of each method and its accuracy 
 
 ## Figures
 
-**Monte Carlo variance reduction.** All techniques converge in N^−1/2. Stratification of the Gaussian driver dominates in this one-dimensional problem. Importance sampling does nothing at the money, since the optimal drift is 0, so its line overlaps the crude estimator.
+**Monte Carlo variance reduction.** All techniques converge in N^−1/2. Stratification of the Gaussian driver dominates in this one-dimensional problem. Importance sampling does nothing at the money, since the optimal drift is 0: its line (dashed) lies exactly on top of the crude estimator.
 
 ![Variance reduction](docs/figures/mc_variance_reduction.png)
 
